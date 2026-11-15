@@ -1,0 +1,871 @@
+<title>Panel BX3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: una columna de trabajo (Semana / Mes / Rodajes / Clientes) con selector de persona, navegación inferior en el celular y superior en escritorio; la claqueta del próximo rodaje es el único objeto oscuro. */
+:root{
+  --bg:#F2F3F0; --surface:#FFFFFF; --ink:#16191A; --muted:#5C6464; --line:#D9DCD6;
+  --accent:#2C43C2; --accent-soft:#E6E9FA; --accent-ink:#FFFFFF;
+  --late:#B3261E; --late-bg:#FBE8E6; --soon:#8F5400; --soon-bg:#FFF0D4; --ok:#1C6A44; --ok-bg:#E2F1E8;
+  --slate:#1A1D1E; --slate-ink:#EEF0EC; --slate-line:#3A4042;
+  --seg1:#B9C0F2; --seg2:#2C43C2; --seg3:#E3A63B; --seg4:#3E9B6C;
+  --f-display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono",monospace;
+  --k1:#2C43C2; --k1-bg:#E6E9FA; --k2:#1C6A44; --k2-bg:#E2F1E8; --k3:#9A4A1F; --k3-bg:#F8E7DC; --k4:#6B3FA0; --k4-bg:#EEE6F7;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111415; --surface:#1A1E1F; --ink:#E7EAE5; --muted:#9BA29F; --line:#2D3334;
+  --accent:#93A1FF; --accent-soft:#232A52; --accent-ink:#0D1233;
+  --late:#FF8B7F; --late-bg:#3A1916; --soon:#F3B75C; --soon-bg:#33260E; --ok:#7CD2A3; --ok-bg:#12291D;
+  --slate:#0A0C0D; --slate-ink:#E7EAE5; --slate-line:#2F3536;
+  --seg1:#3B4483; --seg2:#93A1FF; --seg3:#D79A33; --seg4:#4FB283; --k1:#93A1FF; --k1-bg:#232A52; --k2:#7CD2A3; --k2-bg:#12291D; --k3:#F0A57A; --k3-bg:#3A2316; --k4:#C7A6F2; --k4-bg:#2C2140; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111415; --surface:#1A1E1F; --ink:#E7EAE5; --muted:#9BA29F; --line:#2D3334;
+  --accent:#93A1FF; --accent-soft:#232A52; --accent-ink:#0D1233;
+  --late:#FF8B7F; --late-bg:#3A1916; --soon:#F3B75C; --soon-bg:#33260E; --ok:#7CD2A3; --ok-bg:#12291D;
+  --slate:#0A0C0D; --slate-ink:#E7EAE5; --slate-line:#2F3536;
+  --seg1:#3B4483; --seg2:#93A1FF; --seg3:#D79A33; --seg4:#4FB283; --k1:#93A1FF; --k1-bg:#232A52; --k2:#7CD2A3; --k2-bg:#12291D; --k3:#F0A57A; --k3-bg:#3A2316; --k4:#C7A6F2; --k4-bg:#2C2140; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 var(--f-body);-webkit-text-size-adjust:100%}
+.wrap{max-width:960px;margin:0 auto;padding-inline:16px;padding-block:16px 96px}
+h1,h2,h3{font-family:var(--f-display);font-stretch:85%;margin:0;text-wrap:balance;line-height:1.1}
+h1{font-size:1.65rem;font-weight:800;letter-spacing:-.01em}
+h2{font-size:1.15rem;font-weight:700}
+h3{font-size:1rem;font-weight:700}
+.label{font:600 .72rem/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+/* Header */
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.top .who{display:grid;gap:6px}
+.sync{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
+.dot.live{background:var(--ok)} .dot.warn{background:var(--soon)} .dot.err{background:var(--late)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-weight:600;font-size:.9rem;min-height:36px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+
+/* Tabs */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabs button{border:0;background:none;padding:10px 4px 12px;display:grid;justify-items:center;gap:4px;font-weight:600;font-size:.85rem;color:var(--muted);position:relative}
+.tabs button[aria-selected="true"]{color:var(--ink)}
+.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;background:var(--accent);border-radius:0 0 3px 3px}
+.tabs svg{width:22px;height:22px}
+.tabs .count{font:600 .7rem/1 var(--f-mono);background:var(--late-bg);color:var(--late);border-radius:99px;padding:2px 6px;position:absolute;top:6px;right:calc(50% - 30px)}
+@media (min-width:760px){
+  .wrap{padding-bottom:40px}
+  .tabs{position:sticky;top:env(safe-area-inset-top,0px);bottom:auto;display:flex;gap:4px;border:0;border-bottom:1px solid var(--line);background:var(--bg);padding:8px 0 0;margin-bottom:18px}
+  .tabs button{display:flex;gap:8px;padding:10px 14px;font-size:.95rem}
+  .tabs button[aria-selected="true"]::before{top:auto;bottom:-1px;left:10px;right:10px;border-radius:3px 3px 0 0}
+  .tabs .count{position:static}
+}
+
+section.view{display:grid;gap:22px;padding-top:18px}
+@media (min-width:760px){section.view{padding-top:0}}
+
+/* Summary strip */
+.strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px;display:grid;gap:4px;min-width:0}
+.stat b{font:700 1.7rem/1 var(--f-display);font-stretch:80%;font-variant-numeric:tabular-nums}
+.stat.late b{color:var(--late)} .stat.soon b{color:var(--soon)}
+.stat span{font-size:.82rem;color:var(--muted);line-height:1.25}
+
+/* Claqueta */
+.slate{background:var(--slate);color:var(--slate-ink);border-radius:var(--r);overflow:hidden}
+.slate .stripes{height:18px;background:repeating-linear-gradient(-45deg,var(--slate-ink) 0 14px,var(--slate) 14px 28px)}
+.slate .grid{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--slate-line)}
+.slate .cell{padding:10px 14px;border-right:1px solid var(--slate-line);border-bottom:1px solid var(--slate-line);min-width:0}
+.slate .cell:nth-child(2n){border-right:0}
+.slate .cell .label{color:var(--slate-ink);opacity:.62}
+.slate .cell .v{font:600 1.05rem/1.25 var(--f-display);font-stretch:85%;margin-top:4px;overflow-wrap:anywhere}
+.slate .cell.wide{grid-column:1/-1;border-right:0}
+.slate ol{margin:6px 0 0;padding-left:1.25em;display:grid;gap:4px}
+.slate li{font-size:.95rem}
+.slate li small{opacity:.7}
+.slate .foot{display:flex;justify-content:space-between;gap:10px;padding:10px 14px;flex-wrap:wrap}
+.slate .btn{background:transparent;color:var(--slate-ink);border-color:var(--slate-line)}
+
+/* Lists */
+.group{display:grid;gap:8px}
+.group-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.list{display:grid;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden}
+.row{display:grid;grid-template-columns:4px 1fr auto;gap:12px;align-items:center;padding:12px 14px 12px 0;border:0;border-top:1px solid var(--line);background:none;text-align:left;width:100%}
+.row:first-child{border-top:0}
+.row:hover{background:var(--accent-soft)}
+.row .bar{align-self:stretch;background:transparent}
+.row.late .bar{background:var(--late)} .row.soon .bar{background:var(--soon)}
+.row .t{min-width:0;display:grid;gap:3px}
+.row .t strong{font-weight:600;overflow-wrap:anywhere}
+.row .meta{display:flex;flex-wrap:wrap;gap:6px 10px;font-size:.83rem;color:var(--muted);align-items:center}
+.chip{font:600 .72rem/1 var(--f-mono);letter-spacing:.03em;padding:4px 7px;border-radius:5px;background:var(--bg);border:1px solid var(--line);color:var(--ink);white-space:nowrap}
+.pill{font:600 .75rem/1 var(--f-body);padding:5px 9px;border-radius:99px;white-space:nowrap;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.pill.s-curso,.pill.s-PRODUCTION{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.pill.s-bloq,.pill.s-ASSET_NEEDED{background:var(--late-bg);color:var(--late);border-color:transparent}
+.pill.s-rev,.pill.s-EDITING,.pill.s-INTERNAL_REVIEW,.pill.s-CLIENT_APPROVAL{background:var(--soon-bg);color:var(--soon);border-color:transparent}
+.pill.s-listo,.pill.s-SCHEDULED{background:var(--ok-bg);color:var(--ok);border-color:transparent}
+.empty{padding:18px;border:1px dashed var(--line);border-radius:var(--r);color:var(--muted);font-size:.95rem}
+
+/* Client cards */
+.clients{display:grid;gap:12px}
+@media (min-width:760px){.clients{grid-template-columns:1fr 1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;gap:12px;align-content:start;min-width:0}
+.card-h{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.health{font:600 .72rem/1 var(--f-mono);padding:4px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:.05em}
+.health.Verde{background:var(--ok-bg);color:var(--ok)} .health.Amarillo{background:var(--soon-bg);color:var(--soon)} .health.Rojo{background:var(--late-bg);color:var(--late)} .health.none{background:var(--bg);color:var(--muted)}
+.role{font-size:.92rem;border-left:3px solid var(--accent);padding-left:10px}
+.pipe{display:grid;gap:6px}
+.pipebar{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--bg);border:1px solid var(--line)}
+.pipebar i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.8rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:9px;height:9px;border-radius:2px;display:inline-block}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.9rem}
+.kv dt{color:var(--muted)} .kv dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.card details summary{cursor:pointer;font-weight:600;font-size:.92rem;color:var(--accent);list-style:none}
+.card details summary::-webkit-details-marker{display:none}
+.card details[open] summary{margin-bottom:8px}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-size:.9rem;font-weight:600}
+.toggle input{width:18px;height:18px;accent-color:var(--accent)}
+
+/* Notices */
+.notice{border-radius:var(--r);padding:12px 14px;display:grid;gap:8px;font-size:.93rem;border:1px solid var(--line);background:var(--surface)}
+.notice.err{border-color:var(--late);background:var(--late-bg)}
+.notice.warn{border-color:var(--soon);background:var(--soon-bg)}
+.notice .actions{display:flex;gap:8px;flex-wrap:wrap}
+.skel{height:56px;border-radius:var(--r);background:linear-gradient(90deg,var(--surface),var(--bg),var(--surface));background-size:200% 100%;animation:sh 1.4s infinite linear;border:1px solid var(--line)}
+@keyframes sh{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.skel{animation:none}}
+
+/* Sheet */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);color:var(--ink);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:16px 16px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));display:grid;gap:14px}
+@media (min-width:760px){.scrim{align-items:center}.sheet{border-radius:16px}}
+.sheet .grab{width:40px;height:4px;border-radius:2px;background:var(--line);justify-self:center}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.opt{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:10px;text-align:left;font-weight:600;min-height:44px}
+.opt[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.opt:disabled{opacity:.55;cursor:progress}
+.copy{font-size:.93rem;background:var(--bg);border-radius:8px;padding:10px 12px;display:grid;gap:4px}
+.status-line{font-size:.88rem;min-height:1.2em}
+.status-line.err{color:var(--late)} .status-line.ok{color:var(--ok)}
+
+/* Selector de persona */
+.people{display:flex;gap:4px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px}
+.people button{border:0;background:none;border-radius:999px;padding:5px 12px;font-weight:600;font-size:.88rem;color:var(--muted);min-height:32px}
+.people button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.top-right{display:grid;gap:8px;justify-items:end}
+@media (max-width:620px){.top-right{justify-items:start}}
+
+/* Mes */
+.mes-h{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.mes-nav{display:flex;align-items:center;gap:8px}
+.mes-nav h2{min-width:9.5em;text-align:center;text-transform:capitalize}
+.fchips{display:flex;gap:6px;flex-wrap:wrap}
+.fchip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 11px;font-weight:600;font-size:.85rem;display:inline-flex;gap:6px;align-items:center;min-height:32px}
+.fchip i{width:9px;height:9px;border-radius:50%;background:var(--kc)}
+.fchip[aria-pressed="false"]{opacity:.5}
+.cal{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden}
+.cal .dow,.cal .wk{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.cal .dow div{padding:7px 8px;font:600 .7rem/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line)}
+.cal .cell{min-height:104px;padding:5px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:3px;min-width:0}
+.cal .wk .cell:nth-child(7){border-right:0}
+.cal .cell.out{background:var(--bg)}
+.cal .cell.today{box-shadow:inset 0 0 0 2px var(--accent)}
+.cal .dn{font:700 .95rem/1 var(--f-display);font-stretch:85%;padding:2px 3px;display:flex;justify-content:space-between;gap:4px}
+.cal .dn small{font:600 .62rem/1.1 var(--f-body);color:var(--late);text-align:right}
+.pc{display:block;width:100%;text-align:left;border:0;border-left:3px solid var(--kc);background:var(--kbg);color:var(--ink);border-radius:4px;padding:3px 5px;font-size:.74rem;line-height:1.2;min-width:0}
+.pc b{display:block;font:600 .64rem/1.2 var(--f-mono);color:var(--kc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.pc.falta{border-left-style:dashed}
+.pc.done{opacity:.55}
+.agenda{display:none;gap:14px}
+.agenda .day{display:grid;gap:6px}
+.agenda .day h3{display:flex;gap:8px;align-items:baseline;text-transform:capitalize}
+.agenda .day h3 small{font:600 .75rem/1 var(--f-body);color:var(--late);text-transform:none}
+.agenda .pc{font-size:.92rem;padding:8px 10px}
+.agenda .pc b{font-size:.72rem}
+@media (max-width:759px){.cal{display:none}.agenda{display:grid}}
+.legend-m{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;color:var(--muted)}
+.copy .ln b{font-weight:600}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="who">
+      <span class="label">BX3 · Operación diaria</span>
+      <h1>Panel BX3</h1>
+    </div>
+    <div class="top-right">
+      <div class="sync" id="sync">
+        <span class="dot" id="syncDot"></span>
+        <span id="syncText">Conectando con Notion…</span>
+        <button class="btn" id="refresh" type="button">Actualizar</button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Secciones">
+    <button role="tab" id="tab-semana" aria-controls="v-semana" aria-selected="true" data-tab="semana" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+      <span>Semana</span><span class="count" id="cnt-semana" hidden></span>
+    </button>
+    <button role="tab" id="tab-mes" aria-controls="v-mes" aria-selected="false" data-tab="mes" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4M7.5 13.5h2M11 13.5h2M14.5 13.5h2M7.5 16.5h2M11 16.5h2"/></svg>
+      <span>Mes</span>
+    </button>
+    <button role="tab" id="tab-clientes" aria-controls="v-clientes" aria-selected="false" data-tab="clientes" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3.5" y="4" width="7" height="7" rx="1.5"/><rect x="13.5" y="4" width="7" height="7" rx="1.5"/><rect x="3.5" y="14" width="7" height="7" rx="1.5"/><rect x="13.5" y="14" width="7" height="7" rx="1.5"/></svg>
+      <span>Clientes</span>
+    </button>
+    <button role="tab" id="tab-rodajes" aria-controls="v-rodajes" aria-selected="false" data-tab="rodajes" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3.5 9.5h17V19a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19z"/><path d="M3.8 9.4 3 5.6l15.6-3.3.8 3.8zM8 4.8l2.4 3.5M13.2 3.7l2.4 3.5"/></svg>
+      <span>Rodajes</span><span class="count" id="cnt-rodajes" hidden></span>
+    </button>
+  </nav>
+
+  <div id="pageNotice"></div>
+
+  <section class="view" id="v-semana" role="tabpanel" aria-labelledby="tab-semana"></section>
+  <section class="view" id="v-mes" role="tabpanel" aria-labelledby="tab-mes" hidden></section>
+  <section class="view" id="v-clientes" role="tabpanel" aria-labelledby="tab-clientes" hidden></section>
+  <section class="view" id="v-rodajes" role="tabpanel" aria-labelledby="tab-rodajes" hidden></section>
+</div>
+
+<div id="sheetRoot"></div>
+
+<script>
+(() => {
+  "use strict";
+  const SERVER = "Notion";
+  const QUERY = "notion-query-data-sources";
+  const UPDATE = "notion-update-page";
+  // Saved Notion views. View mode has no per-plan query quota (row queries do on the free plan).
+  const VIEWS = {
+    clientes: "view://3efda35e-4c95-8165-ba03-000c01ea998d",   // Panel BX3 · Clientes activos
+    tareas: "view://3f5da35e-4c95-810d-a6eb-000c281ccbf0",     // Equipo · Tareas abiertas (el panel filtra por persona)
+    piezas: "view://3efda35e-4c95-8108-a789-000ce94fe0b9"      // Panel BX3 · Producción (todas las piezas)
+  };
+  const MAX_PAGES = 6;
+  const AUTO_REFRESH_MS = 10 * 60 * 1000;
+  // The panel starts on this date (Leandro, 2026-10-09): anything dated before it is hidden here, not deleted in Notion.
+  const START_DATE = "2026-10-09";
+  const PEOPLE = ["Leandro", "Medrano", "Santiago", "Equipo"];
+  const TABS = ["semana", "mes", "rodajes", "clientes"];
+  const CLIENT_TONES = ["k1", "k2", "k3", "k4"];
+  const MONTHS = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+  const DOW = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+  // Fechas del país y de campaña que se marcan en el mes (calendars/_research/).
+  const DAY_TAGS = { "2026-10-12": "Festivo", "2026-10-31": "Halloween", "2026-11-02": "Festivo", "2026-11-16": "Festivo", "2026-11-27": "Black Friday", "2026-12-07": "Velitas", "2026-12-08": "Festivo", "2026-12-16": "Novena", "2026-12-24": "Nochebuena", "2026-12-25": "Navidad", "2026-12-31": "Fin de año" };
+  const ACTIVE_CLIENT = new Set(["Activo", "Onboarding", "Por renovar", "En pausa"]);
+
+  const PIECE_LABEL = {
+    IDEA: "Idea", STRATEGY_APPROVED: "Estrategia aprobada", SCRIPT: "Guion", ASSET_NEEDED: "Falta material",
+    PRODUCTION: "En grabación", EDITING: "Grabada · en edición", INTERNAL_REVIEW: "Revisión interna",
+    CLIENT_APPROVAL: "Aprobación del cliente", SCHEDULED: "Programada", PUBLISHED: "Publicada"
+  };
+  const TO_SHOOT = new Set(["IDEA", "STRATEGY_APPROVED", "SCRIPT", "ASSET_NEEDED", "PRODUCTION"]);
+  const PIECE_OPTS = ["SCRIPT", "ASSET_NEEDED", "PRODUCTION", "EDITING"];
+  const SEGMENTS = [
+    { name: "Preparación", states: ["IDEA", "STRATEGY_APPROVED", "SCRIPT", "ASSET_NEEDED"], v: "--seg1" },
+    { name: "Grabación", states: ["PRODUCTION"], v: "--seg2" },
+    { name: "Edición", states: ["EDITING", "INTERNAL_REVIEW"], v: "--seg3" },
+    { name: "Cliente y programación", states: ["CLIENT_APPROVAL", "SCHEDULED"], v: "--seg4" }
+  ];
+  const TASK_OPTS = ["Pendiente", "En curso", "En revision", "Bloqueado", "Listo"];
+  const TASK_LABEL = { "En revision": "En revisión" };
+  const TASK_CLASS = { "En curso": "s-curso", "Bloqueado": "s-bloq", "En revision": "s-rev", "Listo": "s-listo" };
+
+  const state = {
+    tab: "semana",
+    person: "Equipo",
+    month: null,
+    hiddenClients: new Set(),
+    onlyMine: true,
+    clients: null, clientsErr: null,
+    tasks: null, tasksErr: null,
+    pieces: null, piecesErr: null,
+    loadedAt: null, loading: false,
+    mcp: null, perms: null
+  };
+
+  // ---------- utilities ----------
+  const $ = (id) => document.getElementById(id);
+  function h(tag, attrs, ...kids) {
+    const el = document.createElement(tag);
+    if (attrs) for (const [k, v] of Object.entries(attrs)) {
+      if (v == null || v === false) continue;
+      if (k === "class") el.className = v;
+      else if (k === "style") el.setAttribute("style", v);
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+      else if (v === true) el.setAttribute(k, "");
+      else el.setAttribute(k, v);
+    }
+    for (const k of kids.flat()) {
+      if (k == null || k === false) continue;
+      el.append(k instanceof Node ? k : document.createTextNode(String(k)));
+    }
+    return el;
+  }
+  const todayISO = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Bogota" }).format(new Date());
+  function addDays(iso, n) { const d = new Date(iso + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+  const weekEnd = addDays(todayISO, 6);
+  const fmtDay = new Intl.DateTimeFormat("es-CO", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+  const fmtLong = new Intl.DateTimeFormat("es-CO", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
+  const fmtTime = new Intl.DateTimeFormat("es-CO", { hour: "numeric", minute: "2-digit" });
+  function day(iso) { return iso ? fmtDay.format(new Date(iso.slice(0, 10) + "T12:00:00Z")).replace(/\./g, "") : ""; }
+  function longDay(iso) { return iso ? fmtLong.format(new Date(iso.slice(0, 10) + "T12:00:00Z")) : ""; }
+  function parseList(v) { if (Array.isArray(v)) return v; if (!v) return []; try { const p = JSON.parse(v); return Array.isArray(p) ? p : [p]; } catch { return [String(v)]; } }
+  function clean(s) { return String(s || "").replace(/\\([\[\]$*_#])/g, "$1"); }
+  function pageId(url) { const m = String(url || "").match(/([0-9a-f]{32})(?:[?#]|$)/i); return m ? m[1] : null; }
+  function cleanUrl(url) { return String(url || "").split("?")[0]; }
+  function rangeEnd(r) { return r["date:Fecha limite:end"] || r["date:Fecha limite:start"] || null; }
+  function bucket(endIso) {
+    if (!endIso) return "none";
+    if (endIso < todayISO) return "late";
+    if (endIso <= weekEnd) return "soon";
+    return "later";
+  }
+  function clientName(url) {
+    const c = state.clients && state.clients.get(cleanUrl(url));
+    return c ? c.Cliente : null;
+  }
+  function clientOf(row) { const l = parseList(row.Cliente); return l.length ? cleanUrl(l[0]) : null; }
+  function roleOf(c) {
+    if (state.person === "Equipo") return null;
+    const m = String(c.Notas || "").match(new RegExp(state.person + ":\\s*([^.]+)"));
+    return m ? m[1].trim() : null;
+  }
+
+  // ---------- errors ----------
+  function describe(err) {
+    const code = (err && err.code) || "upstream_error";
+    switch (code) {
+      case "server_not_connected": return { code, text: "Notion no está conectado en esta cuenta de Claude. Agrégalo en claude.ai → Configuración → Conectores y vuelve a abrir el panel." };
+      case "needs_reauth": return { code, text: "La conexión con Notion venció. Reconéctala en claude.ai → Configuración → Conectores." };
+      case "selection_required": return { code, text: "Hay más de una conexión de Notion en esta cuenta. Elige cuál usar en el aviso de Claude y recarga." };
+      case "not_in_manifest": return { code, text: "Este panel no tiene permiso para leer Notion en esta vista.", perms: true };
+      case "approval_required": return { code, text: "Notion pide tu aprobación para que el panel lea los datos.", approve: true };
+      case "blocked_by_policy": return { code, text: "La organización bloqueó el uso de Notion desde paneles." };
+      case "server_unavailable": return { code, text: "Notion no respondió. Se muestran los últimos datos cargados.", transient: true };
+      case "tool_error":
+        if (/usage limit|usage_limit/i.test(err.message || "")) return { code, text: "Notion llegó al límite de consultas de su plan gratuito. Se muestran los últimos datos cargados; vuelve a intentar más tarde.", transient: true };
+        if (/Business plan|entitlement/i.test(err.message || "")) return { code, text: "Esta consulta necesita un plan de Notion superior al actual." };
+        return { code, text: "Notion rechazó la consulta: " + (err.message || "sin detalle") };
+      case "not_granted": case "capability_disabled": case "capability_removed":
+        return { code, text: "Esta vista no puede usar conectores. Abre el panel desde claude.ai con la cuenta de BX3." };
+      default: return { code, text: "No se pudo leer Notion (" + code + "). " + (err && err.message ? err.message : "") , transient: !!(err && err.retryable) };
+    }
+  }
+
+  // ---------- data ----------
+  function payloadOf(result) {
+    let p = result && result.payload;
+    if (typeof p === "string") { try { p = JSON.parse(p); } catch { /* keep string */ } }
+    return p && typeof p === "object" ? p : { results: [] };
+  }
+
+  async function loadView(viewUrl, force) {
+    const rows = [];
+    let cursor = null, pages = 0, more = false, storedAt = null;
+    do {
+      const data = { mode: "view", view_url: viewUrl, page_size: 100 };
+      if (cursor) data.start_cursor = cursor;
+      const cache = force ? { refresh: true, staleTime: 60000, gcTime: 3600000 } : { staleTime: 60000, gcTime: 3600000 };
+      const r = await state.mcp.callTool(SERVER, QUERY, { data }, { cache });
+      if (r && r.cache && r.cache.storedAt) storedAt = storedAt ? Math.min(storedAt, r.cache.storedAt) : r.cache.storedAt;
+      const p = payloadOf(r);
+      rows.push(...(p.results || []));
+      more = !!p.has_more; cursor = p.next_cursor || null; pages++;
+    } while (more && cursor && pages < MAX_PAGES);
+    return { rows, more: more && !!cursor, storedAt };
+  }
+
+  function isCurrentTask(t) {
+    const end = rangeEnd(t);
+    return !end || end.slice(0, 10) >= START_DATE;
+  }
+  function isCurrentPiece(p) {
+    if (!String(p.Pieza || "").trim()) return false;
+    const ref = p["date:Grabar antes de:start"] || p["date:Fecha de publicacion:start"];
+    return !ref || ref.slice(0, 10) >= START_DATE;
+  }
+
+  async function loadAll(force) {
+    if (!state.mcp || state.loading) return;
+    state.loading = true; renderSync();
+    const jobs = [
+      ["clients", VIEWS.clientes, (res) => { const m = new Map(); for (const r of res.rows) m.set(cleanUrl(r.url), r); state.clients = m; }],
+      ["tasks", VIEWS.tareas, (res) => { state.tasks = res.rows.filter(isCurrentTask); state.tasksMore = res.more; }],
+      ["pieces", VIEWS.piezas, (res) => { state.pieces = res.rows.filter(isCurrentPiece); state.piecesMore = res.more; }]
+    ];
+    const stamps = [];
+    await Promise.all(jobs.map(async ([key, view, apply]) => {
+      try {
+        const res = await loadView(view, force);
+        apply(res); state[key + "Err"] = null;
+        stamps.push(res.storedAt || Date.now());
+      } catch (e) {
+        const d = describe(e);
+        state[key + "Err"] = d;
+        if (!d.transient) state[key] = null;
+      }
+    }));
+    if (stamps.length) state.loadedAt = Math.min(...stamps);
+    state.loading = false;
+    renderAll();
+  }
+
+  const team = () => state.person === "Equipo";
+  function myTask(t) { return team() || t.Encargado === state.person || t.Encargado === "Los 3"; }
+  function myTasks() { return (state.tasks || []).filter(myTask); }
+  function isMine(c) {
+    if (!ACTIVE_CLIENT.has(c.Estado)) return false;
+    if (team()) return true;
+    if (parseList(c.Encargado).includes(state.person)) return true;
+    const url = cleanUrl(c.url);
+    if (myTasks().some((t) => clientOf(t) === url)) return true;
+    return (state.pieces || []).some((p) => p.Encargado === state.person && p.Estado !== "PUBLISHED" && clientOf(p) === url);
+  }
+
+  function allPieces() {
+    return (state.pieces || []).filter((r) => r.Estado !== "PUBLISHED").map((r) => Object.assign({ _client: clientOf(r) }, r));
+  }
+  function piecesOf(url) { return allPieces().filter((r) => r._client === url); }
+  function myShootPieces() {
+    return allPieces().filter((r) => TO_SHOOT.has(r.Estado) && (team() || !state.onlyMine || r.Encargado === state.person));
+  }
+
+  // ---------- writes ----------
+  async function setEstado(row, value, statusEl, buttons) {
+    const id = pageId(row.url);
+    if (!id) { statusEl.className = "status-line err"; statusEl.textContent = "No se encontró el identificador de esta página."; return; }
+    const before = row.Estado;
+    buttons.forEach((b) => (b.disabled = true));
+    statusEl.className = "status-line"; statusEl.textContent = "Guardando en Notion…";
+    try {
+      await state.mcp.callTool(SERVER, UPDATE, { page_id: id, command: "update_properties", properties: { Estado: value } });
+      row.Estado = value;
+      statusEl.className = "status-line ok"; statusEl.textContent = "Guardado en Notion.";
+      buttons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === value)));
+      renderAll();
+    } catch (e) {
+      row.Estado = before;
+      const code = e && e.code;
+      statusEl.className = "status-line err";
+      statusEl.textContent = (code === "server_unavailable" || code === "upstream_error" || code === "cancelled")
+        ? "Notion no confirmó el cambio. Toca Actualizar para ver si quedó guardado antes de intentar de nuevo."
+        : describe(e).text;
+    } finally { buttons.forEach((b) => (b.disabled = false)); }
+  }
+
+  // ---------- sheet ----------
+  function closeSheet() { $("sheetRoot").replaceChildren(); document.removeEventListener("keydown", escClose); }
+  function escClose(e) { if (e.key === "Escape") closeSheet(); }
+  function openSheet(content) {
+    const sheet = h("div", { class: "sheet", role: "dialog", "aria-modal": "true", tabindex: "-1" }, h("div", { class: "grab" }), content);
+    const scrim = h("div", { class: "scrim", onclick: (e) => { if (e.target === scrim) closeSheet(); } }, sheet);
+    $("sheetRoot").replaceChildren(scrim);
+    document.addEventListener("keydown", escClose);
+    sheet.focus();
+  }
+  function optionGrid(row, opts, labelFn) {
+    const status = h("div", { class: "status-line", role: "status" });
+    const buttons = opts.map((v) => h("button", { class: "opt", type: "button", "data-v": v, "aria-pressed": String(row.Estado === v) }, labelFn(v)));
+    buttons.forEach((b) => b.addEventListener("click", () => { if (b.dataset.v !== row.Estado) setEstado(row, b.dataset.v, status, buttons); }));
+    return [h("div", { class: "opts" }, buttons), status];
+  }
+  function taskSheet(t) {
+    const cn = clientName(clientOf(t)) || "Interno";
+    const end = rangeEnd(t), start = t["date:Fecha limite:start"];
+    openSheet([
+      h("div", { class: "label" }, cn + (t.Ciclo ? " · " + t.Ciclo : "")),
+      h("h2", null, t.Tarea || "Tarea sin título"),
+      h("dl", { class: "kv" },
+        h("dt", null, "Fecha"), h("dd", { class: "mono" }, start ? (end && end !== start ? day(start) + " → " + day(end) : day(start)) : "Sin fecha"),
+        t["Semana del ciclo"] ? [h("dt", null, "Semana"), h("dd", null, t["Semana del ciclo"])] : null,
+        t.Prioridad ? [h("dt", null, "Prioridad"), h("dd", null, t.Prioridad)] : null,
+        t.Dependencia ? [h("dt", null, "Depende de"), h("dd", null, t.Dependencia)] : null),
+      t.Notas ? h("div", { class: "copy" }, clean(t.Notas)) : null,
+      h("div", { class: "label" }, "Cambiar estado"),
+      ...optionGrid(t, TASK_OPTS, (v) => TASK_LABEL[v] || v),
+      h("div", { class: "actions", style: "display:flex;gap:8px;flex-wrap:wrap" },
+        h("a", { class: "btn", href: cleanUrl(t.url), target: "_blank", rel: "noopener" }, "Abrir en Notion"),
+        h("button", { class: "btn", type: "button", onclick: closeSheet }, "Cerrar"))
+    ]);
+  }
+  function pieceSheet(p) {
+    const cn = clientName(p._client || clientOf(p)) || "";
+    const copy = String(p.Copy || "").split(/<br\s*\/?>/i).map(clean).filter(Boolean);
+    openSheet([
+      h("div", { class: "label" }, [cn, p.Formato, parseList(p.Canal).join(" + ")].filter(Boolean).join(" · ")),
+      h("h2", null, clean(p.Pieza) || "Pieza sin título"),
+      h("dl", { class: "kv" },
+        h("dt", null, "Grabar antes de"), h("dd", { class: "mono" }, p["date:Grabar antes de:start"] ? day(p["date:Grabar antes de:start"]) : "Sin fecha"),
+        h("dt", null, "Publicación"), h("dd", { class: "mono" }, p["date:Fecha de publicacion:start"] ? day(p["date:Fecha de publicacion:start"]) : "Sin fecha"),
+        p.Ubicacion ? [h("dt", null, "Lugar"), h("dd", null, p.Ubicacion)] : null,
+        p.Encargado ? [h("dt", null, "Encargado"), h("dd", null, p.Encargado)] : null,
+        p.Asset ? [h("dt", null, "Material"), h("dd", null, clean(p.Asset))] : null),
+      copy.length ? h("div", { class: "copy" }, copy.map((l) => { const m = l.match(/^(Hook|Guion|Texto en pantalla|CTA|Regla|Nota):\s*(.*)$/); return m ? h("div", { class: "ln" }, h("b", null, m[1] + ": "), m[2]) : h("div", null, l); })) : null,
+      h("div", { class: "label" }, "Estado de la pieza"),
+      ...optionGrid(p, PIECE_OPTS, (v) => PIECE_LABEL[v]),
+      h("p", { class: "muted", style: "margin:0;font-size:.85rem" }, "Marca “Grabada · en edición” solo cuando el material ya está grabado. Los estados de revisión, aprobación y programación se cambian en Notion."),
+      h("div", { style: "display:flex;gap:8px;flex-wrap:wrap" },
+        h("a", { class: "btn", href: cleanUrl(p.url), target: "_blank", rel: "noopener" }, "Abrir en Notion"),
+        h("button", { class: "btn", type: "button", onclick: closeSheet }, "Cerrar"))
+    ]);
+  }
+
+  // ---------- pieces of UI ----------
+  function noticeFor(d, onRetry) {
+    if (!d) return null;
+    const actions = [];
+    if (d.perms) actions.push(h("button", { class: "btn primary", type: "button", onclick: async () => {
+      try { const p = state.perms || await window.claude.use("permissions"); if (p) await p.manage(); } catch { /* panel unavailable */ }
+    } }, "Revisar permisos"));
+    if (d.approve) actions.push(h("button", { class: "btn primary", type: "button", onclick: approveLoad }, "Aprobar y cargar"));
+    if (d.transient && onRetry) actions.push(h("button", { class: "btn", type: "button", onclick: onRetry }, "Reintentar"));
+    return h("div", { class: "notice " + (d.transient ? "warn" : "err"), role: "status" }, h("div", null, d.text), actions.length ? h("div", { class: "actions" }, actions) : null);
+  }
+  async function approveLoad() {
+    if (!state.mcp) return;
+    loadAll(true);
+  }
+  function retryAll() { loadAll(true); }
+
+  function taskRow(t) {
+    const b = bucket(rangeEnd(t));
+    const cn = clientName(clientOf(t)) || "Interno";
+    const start = t["date:Fecha limite:start"], end = rangeEnd(t);
+    return h("button", { class: "row " + (b === "late" ? "late" : b === "soon" ? "soon" : ""), type: "button", onclick: () => taskSheet(t) },
+      h("span", { class: "bar" }),
+      h("span", { class: "t" },
+        h("strong", null, t.Tarea || "Tarea sin título"),
+        h("span", { class: "meta" }, h("span", { class: "chip" }, cn), team() && t.Encargado ? h("span", null, t.Encargado) : null, start ? h("span", { class: "mono" }, end && end !== start ? day(start) + " → " + day(end) : day(start)) : h("span", null, "Sin fecha"))),
+      h("span", { class: "pill " + (TASK_CLASS[t.Estado] || "") }, TASK_LABEL[t.Estado] || t.Estado || "—"));
+  }
+  function pieceRow(p) {
+    const g = p["date:Grabar antes de:start"];
+    const b = TO_SHOOT.has(p.Estado) ? bucket(g) : "none";
+    return h("button", { class: "row " + (b === "late" ? "late" : b === "soon" ? "soon" : ""), type: "button", onclick: () => pieceSheet(p) },
+      h("span", { class: "bar" }),
+      h("span", { class: "t" },
+        h("strong", null, clean(p.Pieza) || "Pieza sin título"),
+        h("span", { class: "meta" },
+          p.Formato ? h("span", { class: "chip" }, p.Formato) : null,
+          p.Ubicacion ? h("span", null, p.Ubicacion) : null,
+          g ? h("span", { class: "mono" }, "grabar " + day(g)) : null,
+          p.Encargado && p.Encargado !== state.person ? h("span", null, p.Encargado) : null)),
+      h("span", { class: "pill s-" + p.Estado }, PIECE_LABEL[p.Estado] || p.Estado || "—"));
+  }
+  function skeleton(n) { return h("div", { class: "group" }, Array.from({ length: n }, () => h("div", { class: "skel" }))); }
+
+  function shootGroups() {
+    const groups = new Map();
+    for (const p of myShootPieces()) {
+      const date = p["date:Grabar antes de:start"] || "";
+      const key = date + "|" + p._client;
+      if (!groups.has(key)) groups.set(key, { date, client: p._client, pieces: [] });
+      groups.get(key).pieces.push(p);
+    }
+    return [...groups.values()].sort((a, b) => (a.date || "9999").localeCompare(b.date || "9999"));
+  }
+
+  function slate(g) {
+    const cn = clientName(g.client) || "Cliente";
+    const places = [...new Set(g.pieces.map((p) => p.Ubicacion).filter(Boolean))];
+    const reels = g.pieces.filter((p) => p.Formato === "Reel").length;
+    return h("article", { class: "slate", "aria-label": "Próximo rodaje" },
+      h("div", { class: "stripes" }),
+      h("div", { class: "grid" },
+        h("div", { class: "cell" }, h("div", { class: "label" }, "Cliente"), h("div", { class: "v" }, cn)),
+        h("div", { class: "cell" }, h("div", { class: "label" }, "Grabar antes de"), h("div", { class: "v mono" }, g.date ? day(g.date) : "Sin fecha")),
+        h("div", { class: "cell" }, h("div", { class: "label" }, "Lugar"), h("div", { class: "v" }, places.join(" · ") || "Por definir")),
+        h("div", { class: "cell" }, h("div", { class: "label" }, "Piezas"), h("div", { class: "v mono" }, g.pieces.length + (reels ? " · " + reels + " reels" : ""))),
+        h("div", { class: "cell wide" }, h("div", { class: "label" }, "Lista de tomas"),
+          h("ol", null, g.pieces.slice(0, 8).map((p) => h("li", null, clean(p.Pieza), p.Asset ? h("small", null, " — " + clean(p.Asset)) : null))),
+          g.pieces.length > 8 ? h("div", { class: "muted", style: "margin-top:6px;font-size:.85rem;opacity:.75" }, "y " + (g.pieces.length - 8) + " más en Rodajes") : null)),
+      h("div", { class: "foot" },
+        h("span", { class: "label", style: "color:inherit;opacity:.62" }, g.date && g.date < todayISO ? "Fecha vencida" : longDay(g.date)),
+        h("button", { class: "btn", type: "button", onclick: () => setTab("rodajes") }, "Ver todos los rodajes")));
+  }
+
+  // ---------- views ----------
+  function renderSemana() {
+    const v = $("v-semana");
+    const kids = [];
+    const loadingPieces = state.pieces == null && !state.piecesErr;
+    const tasks = myTasks();
+    const shoot = myShootPieces();
+    const lateTasks = tasks.filter((t) => bucket(rangeEnd(t)) === "late");
+    const lateShoot = shoot.filter((p) => bucket(p["date:Grabar antes de:start"]) === "late");
+    const soonTasks = tasks.filter((t) => bucket(rangeEnd(t)) === "soon");
+    const soonShoot = shoot.filter((p) => bucket(p["date:Grabar antes de:start"]) === "soon");
+
+    kids.push(h("div", { class: "strip" },
+      h("div", { class: "stat late" }, h("b", null, state.tasks ? String(lateTasks.length + lateShoot.length) : "–"), h("span", null, "atrasadas")),
+      h("div", { class: "stat soon" }, h("b", null, state.tasks ? String(soonTasks.length + soonShoot.length) : "–"), h("span", null, "vencen en 7 días")),
+      h("div", { class: "stat" }, h("b", null, loadingPieces ? "–" : String(shoot.length)), h("span", null, team() || !state.onlyMine ? "piezas por grabar (todas)" : "piezas por grabar"))));
+
+    const groups = shootGroups();
+    const next = groups.find((g) => g.date && g.date >= todayISO) || groups.find((g) => !g.date);
+    if (lateShoot.length) kids.push(h("div", { class: "notice err" },
+      h("div", null, lateShoot.length + (lateShoot.length === 1 ? " pieza tiene" : " piezas tienen") + " la fecha de grabación vencida y siguen sin grabar. Grábalas o pide a Leandro que mueva la fecha en Notion."),
+      h("div", { class: "actions" }, h("button", { class: "btn", type: "button", onclick: () => setTab("rodajes") }, "Ver en Rodajes"))));
+    if (next) kids.push(h("div", { class: "group" }, h("div", { class: "group-h" }, h("h2", null, "Próximo rodaje")), slate(next)));
+    else if (!loadingPieces) kids.push(h("div", { class: "empty" }, "No hay rodajes con fecha próxima. Cuando una pieza tenga fecha en “Grabar antes de”, aparece acá."));
+
+    if (state.piecesErr) kids.push(noticeFor(state.piecesErr, retryAll));
+    kids.push(h("div", { class: "group-h" }, h("h2", null, team() ? "Tareas del equipo" : "Tus tareas"), h("span", { class: "label" }, team() ? "Todos los encargados" : "Encargado: " + state.person)));
+    if (state.tasksErr) kids.push(noticeFor(state.tasksErr, retryAll));
+    if (!state.tasks && !state.tasksErr) kids.push(skeleton(3));
+    if (state.tasks) {
+      const groupsT = [["late", "Atrasadas"], ["soon", "Esta semana"], ["later", "Más adelante"], ["none", "Sin fecha"]];
+      let any = false;
+      for (const [k, name] of groupsT) {
+        const rows = tasks.filter((t) => bucket(rangeEnd(t)) === k);
+        if (!rows.length) continue;
+        any = true;
+        kids.push(h("div", { class: "group" }, h("div", { class: "label" }, name + " · " + rows.length), h("div", { class: "list" }, rows.map(taskRow))));
+      }
+      if (!any) kids.push(h("div", { class: "empty" }, team() ? "No hay tareas abiertas en Notion." : "No tienes tareas abiertas en Notion. Las tareas con Encargado “" + state.person + "” o “Los 3” aparecen acá."));
+      if (state.tasksMore) kids.push(h("p", { class: "muted", style: "font-size:.85rem" }, "Se muestran las primeras 100 tareas."));
+    }
+    v.replaceChildren(...kids.filter(Boolean));
+
+    const late = lateTasks.length + lateShoot.length;
+    const c = $("cnt-semana"); c.hidden = !late; c.textContent = late;
+  }
+
+  function renderClientes() {
+    const v = $("v-clientes");
+    const kids = [h("p", { class: "muted", style: "margin:0" }, team() ? "Todos los clientes activos, con el estado de las piezas sin publicar." : "Clientes activos donde " + state.person + " figura como encargado o tiene tareas o piezas asignadas en Notion, con el estado de las piezas sin publicar.")];
+    if (state.clientsErr) kids.push(noticeFor(state.clientsErr, retryAll));
+    if (!state.clients) { if (!state.clientsErr) kids.push(skeleton(4)); v.replaceChildren(...kids); return; }
+    const mine = [...state.clients.values()].filter(isMine).sort((a, b) => String(a.Cliente).localeCompare(String(b.Cliente)));
+    if (!mine.length) { kids.push(h("div", { class: "empty" }, "No hay clientes activos con " + state.person + " como encargado.")); v.replaceChildren(...kids); return; }
+    const tasks = myTasks();
+    kids.push(h("div", { class: "clients" }, mine.map((c) => {
+      const url = cleanUrl(c.url);
+      const pv = state.pieces ? true : null;
+      const perr = state.piecesErr;
+      const rows = piecesOf(url);
+      const counts = SEGMENTS.map((s) => rows.filter((r) => s.states.includes(r.Estado)).length);
+      const total = counts.reduce((a, b) => a + b, 0);
+      const toShoot = rows.filter((r) => TO_SHOOT.has(r.Estado) && r["date:Grabar antes de:start"]).map((r) => r["date:Grabar antes de:start"]).sort();
+      const nextShoot = toShoot.find((d) => d >= todayISO) || toShoot[0];
+      const reelsToShoot = rows.filter((r) => r.Formato === "Reel" && TO_SHOOT.has(r.Estado)).length;
+      const myTasks = tasks.filter((t) => clientOf(t) === url);
+      const role = roleOf(c);
+      const health = c["Salud de cuenta"];
+      return h("article", { class: "card" },
+        h("div", { class: "card-h" },
+          h("div", { style: "display:grid;gap:4px;min-width:0" }, h("h3", null, c.Cliente), h("span", { class: "label" }, c.Estado || "")),
+          h("span", { class: "health " + (health || "none") }, health || "Sin dato")),
+        role ? h("div", { class: "role" }, h("div", { class: "label", style: "margin-bottom:3px" }, "Lo que te toca"), role) : null,
+        h("div", { class: "pipe" },
+          h("div", { class: "label" }, perr ? "Piezas: sin datos" : pv ? "Piezas sin publicar · " + total : "Cargando piezas…"),
+          perr && !pv ? null : h("div", { class: "pipebar", role: "img", "aria-label": SEGMENTS.map((s, i) => s.name + " " + counts[i]).join(", ") },
+            total ? SEGMENTS.map((s, i) => counts[i] ? h("i", { style: "width:" + (counts[i] / total * 100) + "%;background:var(" + s.v + ")" }) : null) : null),
+          !perr && total ? h("div", { class: "legend" }, SEGMENTS.map((s, i) => counts[i] ? h("span", null, h("i", { style: "background:var(" + s.v + ")" }), s.name + " " + counts[i]) : null)) : null),
+        h("dl", { class: "kv" },
+          h("dt", null, "Próxima grabación"), h("dd", { class: "mono" }, nextShoot ? day(nextShoot) + (nextShoot < todayISO ? " · vencida" : "") : "Sin fecha"),
+          h("dt", null, "Reels por grabar"), h("dd", { class: "mono" }, pv ? String(reelsToShoot) : "–"),
+          h("dt", null, team() ? "Tareas abiertas" : "Tus tareas abiertas"), h("dd", { class: "mono" }, state.tasks ? String(myTasks.length) : "–"),
+          c.Bloqueante ? [h("dt", null, "Bloqueante"), h("dd", null, clean(c.Bloqueante))] : null,
+          c["Proxima accion"] ? [h("dt", null, "Próxima acción"), h("dd", null, clean(c["Proxima accion"]))] : null),
+        myTasks.length || rows.length ? h("details", null,
+          h("summary", null, "Ver tareas y piezas"),
+          myTasks.length ? h("div", { class: "group", style: "margin-bottom:10px" }, h("div", { class: "label" }, "Tareas"), h("div", { class: "list" }, myTasks.map(taskRow))) : null,
+          rows.length ? h("div", { class: "group" }, h("div", { class: "label" }, "Piezas"), h("div", { class: "list" }, rows.slice(0, 30).map(pieceRow))) : null,
+          rows.length > 30 ? h("p", { class: "muted", style: "font-size:.85rem" }, "Se muestran 30 de " + rows.length + ". El resto está en Notion.") : null) : null,
+        h("a", { href: url, target: "_blank", rel: "noopener", style: "font-size:.9rem;font-weight:600" }, "Ficha del cliente en Notion"));
+    })));
+    v.replaceChildren(...kids);
+  }
+
+  function renderRodajes() {
+    const v = $("v-rodajes");
+    const toggle = team() ? null : h("label", { class: "toggle" }, h("input", { type: "checkbox", id: "onlyMine", checked: state.onlyMine, onchange: (e) => { state.onlyMine = e.target.checked; try { localStorage.setItem("pm.onlyMine", state.onlyMine ? "1" : "0"); } catch {} renderAll(); } }), "Solo piezas con " + state.person + " como encargado");
+    const kids = [h("div", { class: "group-h", style: "flex-wrap:wrap" }, h("p", { class: "muted", style: "margin:0" }, "Piezas sin grabar, agrupadas por fecha límite de grabación y cliente."), toggle)];
+    if (state.piecesErr) kids.push(noticeFor(state.piecesErr, retryAll));
+    if (state.pieces == null) { if (!state.piecesErr) kids.push(skeleton(4)); v.replaceChildren(...kids); return; }
+    const groups = shootGroups();
+    if (!groups.length) kids.push(h("div", { class: "empty" }, "No hay piezas pendientes de grabar."));
+    if (state.piecesMore) kids.push(h("p", { class: "muted", style: "font-size:.85rem" }, "Hay más piezas en Notion de las que el panel carga de una vez."));
+    for (const g of groups) {
+      const b = g.date ? bucket(g.date) : "none";
+      kids.push(h("div", { class: "group" },
+        h("div", { class: "group-h" },
+          h("h3", null, (clientName(g.client) || "Cliente") + " · ", h("span", { class: "mono" }, g.date ? day(g.date) : "sin fecha")),
+          h("span", { class: "pill " + (b === "late" ? "s-bloq" : b === "soon" ? "s-rev" : "") }, b === "late" ? "Vencida" : b === "soon" ? "Esta semana" : g.pieces.length + " piezas")),
+        h("div", { class: "list" }, g.pieces.map(pieceRow))));
+    }
+    v.replaceChildren(...kids);
+    const late = groups.filter((g) => g.date && g.date < todayISO).reduce((a, g) => a + g.pieces.length, 0);
+    const c = $("cnt-rodajes"); c.hidden = !late; c.textContent = late;
+  }
+
+  function renderPeople() {
+    if (!$("people")) return;
+    $("people").replaceChildren(...PEOPLE.map((p) => h("button", { type: "button", "aria-pressed": String(state.person === p),
+      onclick: () => { state.person = p; try { localStorage.setItem("pm.person", p); } catch {} renderPeople(); renderAll(); } }, p)));
+  }
+
+  function shiftMonth(n) {
+    const [Y, M] = (state.month || todayISO.slice(0, 7)).split("-").map(Number);
+    state.month = new Date(Date.UTC(Y, M - 1 + n, 1)).toISOString().slice(0, 7);
+    renderMes();
+  }
+
+  function renderMes() {
+    const v = $("v-mes");
+    const kids = [];
+    if (state.piecesErr) kids.push(noticeFor(state.piecesErr, retryAll));
+    if (state.pieces == null) { if (!state.piecesErr) kids.push(skeleton(4)); v.replaceChildren(...kids); return; }
+    const ym = state.month || todayISO.slice(0, 7);
+    const [Y, M] = ym.split("-").map(Number);
+    const all = state.pieces.filter((p) => (p["date:Fecha de publicacion:start"] || "").slice(0, 7) === ym)
+      .map((p) => Object.assign({ _client: clientOf(p) }, p));
+    const clientsHere = [...new Set(all.map((p) => p._client))].sort((a, b) => String(clientName(a) || "").localeCompare(String(clientName(b) || "")));
+    const tone = new Map(clientsHere.map((c, i) => [c, CLIENT_TONES[i % CLIENT_TONES.length]]));
+    const shown = all.filter((p) => !state.hiddenClients.has(p._client));
+    const byDay = new Map();
+    for (const p of shown) {
+      const d = p["date:Fecha de publicacion:start"].slice(0, 10);
+      if (!byDay.has(d)) byDay.set(d, []);
+      byDay.get(d).push(p);
+    }
+    const reels = shown.filter((p) => p.Formato === "Reel").length;
+    const falta = shown.filter((p) => p.Estado === "ASSET_NEEDED").length;
+    kids.push(h("div", { class: "mes-h" },
+      h("div", { class: "mes-nav" },
+        h("button", { class: "btn", type: "button", "aria-label": "Mes anterior", onclick: () => shiftMonth(-1) }, "‹"),
+        h("h2", null, MONTHS[M - 1] + " " + Y),
+        h("button", { class: "btn", type: "button", "aria-label": "Mes siguiente", onclick: () => shiftMonth(1) }, "›")),
+      h("span", { class: "label" }, shown.length + " piezas · " + reels + " reels · " + falta + " esperan dato")));
+    if (clientsHere.length) kids.push(h("div", { class: "fchips", role: "group", "aria-label": "Clientes" }, clientsHere.map((c) => {
+      const on = !state.hiddenClients.has(c);
+      return h("button", { class: "fchip", type: "button", "aria-pressed": String(on), style: "--kc:var(--" + tone.get(c) + ")",
+        onclick: () => { if (on) state.hiddenClients.add(c); else state.hiddenClients.delete(c); renderMes(); } }, h("i"), clientName(c) || "Sin cliente");
+    })));
+    if (!all.length) {
+      kids.push(h("div", { class: "empty" }, "No hay piezas con fecha de publicación en " + MONTHS[M - 1] + ". Cuando se cargue el calendario del mes en Producción, aparece acá."));
+      v.replaceChildren(...kids); return;
+    }
+    const chip = (p) => {
+      const t = tone.get(p._client) || "k1";
+      const name = clean(p.Pieza);
+      const code = (name.match(/^([RSC]\d+)/) || [])[1] || "";
+      const title = name.replace(/^[RSC]\d+\s*·\s*/, "");
+      const cls = "pc" + (p.Estado === "ASSET_NEEDED" ? " falta" : "") + (p.Estado === "SCHEDULED" || p.Estado === "PUBLISHED" ? " done" : "");
+      return h("button", { class: cls, type: "button", style: "--kc:var(--" + t + ");--kbg:var(--" + t + "-bg)", onclick: () => pieceSheet(p),
+        "aria-label": [clientName(p._client), name, PIECE_LABEL[p.Estado] || p.Estado].filter(Boolean).join(", ") },
+        h("b", null, [clientName(p._client), code, p.Formato].filter(Boolean).join(" · ")), h("span", null, title));
+    };
+    const first = new Date(Date.UTC(Y, M - 1, 1));
+    const start = new Date(first); start.setUTCDate(1 - ((first.getUTCDay() + 6) % 7));
+    const cal = h("div", { class: "cal" }, h("div", { class: "dow" }, DOW.map((d) => h("div", null, d))));
+    for (let w = 0; w < 6; w++) {
+      const row = h("div", { class: "wk" });
+      let anyIn = false;
+      for (let d = 0; d < 7; d++) {
+        const dt = new Date(start); dt.setUTCDate(start.getUTCDate() + w * 7 + d);
+        const iso = dt.toISOString().slice(0, 10);
+        const inMonth = dt.getUTCMonth() === M - 1;
+        if (inMonth) anyIn = true;
+        const cell = h("div", { class: "cell" + (inMonth ? "" : " out") + (iso === todayISO ? " today" : "") });
+        if (inMonth) {
+          cell.append(h("div", { class: "dn" }, h("span", null, String(dt.getUTCDate())), DAY_TAGS[iso] ? h("small", null, DAY_TAGS[iso]) : null));
+          (byDay.get(iso) || []).forEach((p) => cell.append(chip(p)));
+        }
+        row.append(cell);
+      }
+      if (anyIn) cal.append(row);
+    }
+    const ag = h("div", { class: "agenda" }, [...byDay.keys()].sort().map((iso) =>
+      h("section", { class: "day" }, h("h3", null, longDay(iso), DAY_TAGS[iso] ? h("small", null, DAY_TAGS[iso]) : null), byDay.get(iso).map(chip))));
+    kids.push(cal, ag,
+      h("div", { class: "legend-m" }, h("span", null, "Borde punteado: falta un dato del cliente"), h("span", null, "Atenuada: programada o publicada"), h("span", null, "Toca una pieza para ver el guion y cambiar su estado")));
+    v.replaceChildren(...kids);
+  }
+
+  function renderSync() {
+    const errs = [state.clientsErr, state.tasksErr, state.piecesErr].filter(Boolean);
+    const hard = errs.filter((e) => !e.transient);
+    const dot = $("syncDot"), txt = $("syncText");
+    if (!state.mcp) return;
+    $("refresh").disabled = state.loading;
+    if (state.loading && !state.loadedAt) { dot.className = "dot"; txt.textContent = "Cargando desde Notion…"; }
+    else if (hard.length) { dot.className = "dot err"; txt.textContent = "Notion sin conexión"; }
+    else if (errs.length) { dot.className = "dot warn"; txt.textContent = state.loadedAt ? "Datos de las " + fmtTime.format(state.loadedAt) : "Notion no responde"; }
+    else if (state.loadedAt) { dot.className = "dot live"; txt.textContent = (state.loading ? "Actualizando… " : "Notion · ") + fmtTime.format(state.loadedAt); }
+    else { dot.className = "dot"; txt.textContent = "Cargando desde Notion…"; }
+
+    // One page-level notice when every section fails the same way.
+    const pn = $("pageNotice");
+    const codes = new Set(errs.map((e) => e.code + "|" + e.text));
+    if (errs.length === 3 && codes.size === 1) {
+      pn.replaceChildren(noticeFor(hard[0], retryAll));
+      pn.style.marginTop = "14px";
+    } else pn.replaceChildren();
+  }
+
+  function renderAll() {
+    renderSync();
+    renderSemana();
+    renderMes();
+    renderClientes();
+    renderRodajes();
+  }
+
+  function setTab(name) {
+    state.tab = name;
+    for (const b of document.querySelectorAll(".tabs button")) b.setAttribute("aria-selected", String(b.dataset.tab === name));
+    for (const s of TABS) $("v-" + s).hidden = s !== name;
+    try { localStorage.setItem("pm.tab", name); } catch {}
+    window.scrollTo({ top: 0 });
+  }
+
+  // ---------- boot ----------
+  try {
+    const t = localStorage.getItem("pm.tab"); if (TABS.includes(t)) state.tab = t;
+    const m = localStorage.getItem("pm.onlyMine"); if (m) state.onlyMine = m === "1";
+  } catch {}
+  if (TABS.includes(location.hash.slice(1))) state.tab = location.hash.slice(1);
+  for (const b of document.querySelectorAll(".tabs button")) b.addEventListener("click", () => setTab(b.dataset.tab));
+  $("refresh").addEventListener("click", retryAll);
+  setTab(state.tab);
+  renderSemana(); renderMes(); renderClientes(); renderRodajes();
+
+  const noMcp = () => {
+    $("syncDot").className = "dot err";
+    $("syncText").textContent = "Sin conexión a Notion";
+    $("refresh").hidden = true;
+    $("pageNotice").replaceChildren(h("div", { class: "notice err", style: "margin-top:14px" },
+      h("div", null, "Este panel lee y guarda en el Notion de BX3. Ábrelo desde claude.ai con la cuenta de BX3, que tiene Notion conectado."),
+      h("div", null, h("a", { href: "https://app.notion.com/p/3efda35e4c9581f4bedec00a0e447a96", target: "_blank", rel: "noopener" }, "Ir al Panel BX3 en Notion"))));
+    for (const s of TABS) $("v-" + s).replaceChildren(h("div", { class: "empty" }, "Sin datos: el panel necesita la conexión con Notion."));
+  };
+
+  const use = window.claude && typeof window.claude.use === "function" ? window.claude.use.bind(window.claude) : null;
+  if (!use) { noMcp(); return; }
+  use("permissions").then((p) => { state.perms = p; }).catch(() => {});
+  use("mcp").then((mcp) => {
+    if (!mcp) { noMcp(); return; }
+    state.mcp = mcp;
+    loadAll(false);
+    setInterval(() => { if (document.visibilityState === "visible") loadAll(false); }, AUTO_REFRESH_MS);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible" && state.loadedAt && Date.now() - state.loadedAt > AUTO_REFRESH_MS / 2) loadAll(false);
+    });
+  }).catch(noMcp);
+})();
+</script>
